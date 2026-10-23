@@ -595,6 +595,15 @@ document.getElementById("backButton").addEventListener("click", () => {
   document.getElementById("gameMenu").style.display = "block";
 });
 
+ 
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!client) {
+    showMessage("Supabase is niet correct ingesteld.", "error");
+    return;
+  }
+
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const username = document.getElementById("username").value.trim();
@@ -621,6 +630,36 @@ document.getElementById("backButton").addEventListener("click", () => {
           emailRedirectTo: window.location.href.split("#")[0]
         }
       });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        await showGame(data.user);
+      } else {
+        showMessage(
+          "Account created! Check your email and click the confirmation link before logging in."
+        );
+        setMode("login");
+      }
+    } else {
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+      await showGame(data.user);
+    }
+  } catch (error) {
+    console.error(error);
+    showMessage(error.message || "Something went wrong. Try again.", "error");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = mode === "signup"
+      ? "CREATE YOUR KINGDOM"
+      : "ENTER THE KINGDOM";
+  }
+});
 
       if (error) throw error;
 
