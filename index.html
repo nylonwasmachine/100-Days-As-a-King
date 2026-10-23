@@ -140,27 +140,134 @@ button:disabled { opacity: .55; cursor: wait; }
   color: #777c72;
   line-height: 1.7;
 }
-#gameMenu { display: none; text-align: center; }
-#gameMenu h2 {
-  font: 700 25px Cinzel, serif;
-  color: var(--gold);
-}
-.menu-button {
-  display: block;
+
+/* ROYAL MAIN MENU */
+#gameMenu {
+  display: none;
+  text-align: center;
   width: 100%;
-  padding: 14px;
+}
+
+#gameMenu .menu-header {
+  padding: 12px 0 24px;
+}
+
+#gameMenu .crown {
+  font-size: 54px;
+  color: #e7bd68;
+  text-shadow: 0 0 28px #c69b4d55;
+}
+
+#gameMenu h1 {
+  font-size: clamp(25px, 5vw, 38px);
+  margin: 10px 0;
+}
+
+#gameMenu h2 {
+  font-family: Cinzel, serif;
+  color: #e7bd68;
+  font-size: 23px;
+  margin: 0 0 10px;
+}
+
+#gameMenu .subtitle {
+  margin-bottom: 18px;
+}
+
+.player-badge {
+  display: inline-block;
+  padding: 9px 15px;
+  border: 1px solid #655333;
+  border-radius: 30px;
+  background: #282319;
+  color: #e7bd68;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.menu-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 17px;
   margin: 12px 0;
-  background: #181d17;
-  border: 1px solid #5c4b2c;
-  border-radius: 5px;
-  color: #eee2c7;
+  background: linear-gradient(110deg, #20251d, #111411);
+  border: 1px solid #51452e;
+  border-radius: 6px;
+  color: #f4f0e7;
   cursor: pointer;
+  font-family: Cinzel, serif;
+  font-size: 14px;
   font-weight: 700;
+  text-align: left;
+  transition: border-color .2s, background .2s, transform .2s;
 }
-.menu-button:disabled { opacity: .6; }
-@media(max-width:480px) {
-  main { padding: 25px 20px; }
+
+.menu-button:hover:not(:disabled) {
+  border-color: #e7bd68;
+  background: #302719;
+  transform: translateY(-1px);
 }
+
+.menu-button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.menu-button .menu-icon {
+  font-size: 23px;
+}
+
+.menu-button .menu-description {
+  display: block;
+  margin-top: 5px;
+  color: #a6aaa1;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.menu-button .arrow {
+  color: #e7bd68;
+  font-size: 22px;
+}
+
+#gameMenu .logout-button {
+  justify-content: center;
+  margin-top: 22px;
+  background: transparent;
+  border-color: #39382f;
+  color: #b6b2a6;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+}
+
+#gameMenu .logout-button:hover {
+  border-color: #a65b4b;
+  color: #ffb9a9;
+}
+
+#subScreen {
+  display: none;
+  text-align: center;
+}
+
+#subScreen h2 {
+  font-family: Cinzel, serif;
+  color: #e7bd68;
+}
+
+#subScreen .back-button {
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  main { padding: 24px 18px; }
+  .menu-button { padding: 14px; }
+}
+
 </style>
 </head>
 <body>
@@ -202,17 +309,59 @@ button:disabled { opacity: .55; cursor: wait; }
     <p class="small">A NEW KINGDOM RISES.<br>Choose your destiny.</p>
   </section>
 
-  <section id="gameMenu">
+
+<section id="gameMenu">
+  <div class="menu-header">
     <div class="crown">♛</div>
-    <h2>WELCOME, KING</h2>
-    <p class="subtitle" id="welcomeText">Your kingdom awaits.</p>
-    <div class="divider"></div>
-    <button class="menu-button" disabled>⚔ PLAY — COMING SOON</button>
-    <button class="menu-button" disabled>♟ CHARACTER & SKINS — COMING SOON</button>
-    <button class="menu-button" disabled>🏰 PARTY LOBBY — COMING SOON</button>
-    <button class="menu-button" id="logoutButton">LOG OUT</button>
-    <p class="small">DAY 1 / 100 · YOUR STORY STARTS HERE</p>
-  </section>
+    <h1>SURVIVE 100<br>DAYS AS A KING</h1>
+    <p class="subtitle">SURVIVE. BUILD. CONQUER.</p>
+    <div class="player-badge" id="playerBadge">♟ Loading your profile...</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <button class="menu-button" id="playButton">
+    <span>
+      <span class="menu-icon">⚔️</span> PLAY
+      <span class="menu-description">Begin je reis als koning</span>
+    </span>
+    <span class="arrow">›</span>
+  </button>
+
+  <button class="menu-button" id="skinsButton">
+    <span>
+      <span class="menu-icon">🛡️</span> CHARACTER & SKINS
+      <span class="menu-description">Bekijk je personage en uitrusting</span>
+    </span>
+    <span class="arrow">›</span>
+  </button>
+
+  <button class="menu-button" id="partyButton">
+    <span>
+      <span class="menu-icon">🏰</span> PARTY LOBBY
+      <span class="menu-description">Speel samen met je vrienden</span>
+    </span>
+    <span class="arrow">›</span>
+  </button>
+
+  <div class="divider"></div>
+  <p class="small">DAY 1 / 100 · YOUR KINGDOM AWAITS</p>
+
+  <button class="menu-button logout-button" id="logoutButton">
+    LOG OUT
+  </button>
+</section>
+
+<section id="subScreen">
+  <div class="crown">♛</div>
+  <h2 id="subTitle">YOUR KINGDOM</h2>
+  <p class="subtitle" id="subDescription"></p>
+  <div class="divider"></div>
+  <div id="subContent"></div>
+  <button class="menu-button back-button" id="backButton">
+    ‹ BACK TO MAIN MENU
+  </button>
+</section>
 </main>
 
 <script>
@@ -263,17 +412,20 @@ loginTab.addEventListener("click", () => setMode("login"));
 signupTab.addEventListener("click", () => setMode("signup"));
 
 
+
 async function showGame(user) {
   document.getElementById("authScreen").style.display = "none";
+  document.getElementById("subScreen").style.display = "none";
   document.getElementById("gameMenu").style.display = "block";
 
-  const welcome = document.getElementById("welcomeText");
-  welcome.textContent = "Loading your kingdom...";
+  const badge = document.getElementById("playerBadge");
+  badge.textContent = "♟ Loading your profile...";
 
-  const fallbackName =
-    user.user_metadata?.username ||
-    user.email?.split("@")[0] ||
-    "King";
+  let profile = {
+    username: user.user_metadata?.username ||
+      user.email?.split("@")[0] || "King",
+    skin: "default"
+  };
 
   try {
     const { data, error } = await client
@@ -283,28 +435,165 @@ async function showGame(user) {
       .single();
 
     if (error) throw error;
-
-    welcome.textContent =
-      "Welcome, " + data.username +
-      ". Your kingdom awaits. Skin: " + data.skin;
+    profile = data;
   } catch (error) {
-    console.error("Could not load player profile:", error);
-    welcome.textContent =
-      "Welcome, " + fallbackName + ". Your kingdom awaits.";
+    console.error("Profile loading failed:", error);
   }
+
+  badge.textContent = "♟ " + profile.username;
+  window.currentKing = {
+    id: user.id,
+    username: profile.username,
+    skin: profile.skin || "default"
+  };
 }
 
+function openSubScreen(title, description, content) {
+  document.getElementById("gameMenu").style.display = "none";
+  document.getElementById("subScreen").style.display = "block";
+  document.getElementById("subTitle").textContent = title;
+  document.getElementById("subDescription").textContent = description;
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+  const container = document.getElementById("subContent");
+  container.replaceChildren();
+  container.appendChild(content);
+}
 
-  if (!client) {
-    showMessage(
-      "Supabase is not configured yet. Add your Project URL and publishable key in the code first.",
-      "error"
-    );
-    return;
+function makeInfo(text) {
+  const p = document.createElement("p");
+  p.className = "subtitle";
+  p.textContent = text;
+  return p;
+}
+
+// PLAY
+document.getElementById("playButton").addEventListener("click", () => {
+  const content = document.createElement("div");
+  content.appendChild(makeInfo(
+    "Your journey begins here. The 3D survival world is the next stage of development."
+  ));
+
+  const status = document.createElement("div");
+  status.className = "player-badge";
+  status.textContent = "COMING SOON · DAY 1 / 100";
+  content.appendChild(status);
+
+  openSubScreen(
+    "YOUR KINGDOM AWAITS",
+    "Prepare to survive 100 days.",
+    content
+  );
+});
+
+// CHARACTER & SKINS
+document.getElementById("skinsButton").addEventListener("click", () => {
+  const content = document.createElement("div");
+
+  const king = window.currentKing;
+  if (!king) return;
+
+  const name = document.createElement("p");
+  name.className = "player-badge";
+  name.textContent = "♟ " + king.username;
+  content.appendChild(name);
+
+  const preview = document.createElement("div");
+  preview.style.cssText = "font-size:72px;padding:20px";
+  preview.textContent = "♞";
+  content.appendChild(preview);
+
+  const label = document.createElement("label");
+  label.htmlFor = "skinSelect";
+  label.textContent = "CHOOSE YOUR ROYAL COLORS";
+  content.appendChild(label);
+
+  const select = document.createElement("select");
+  select.id = "skinSelect";
+  select.style.cssText =
+    "width:100%;padding:13px;background:#0b0d0c;color:#fff;border:1px solid #655333;border-radius:5px";
+
+  const skins = [
+    ["default", "Royal Gold (Default)"],
+    ["royal_blue", "Royal Blue"],
+    ["forest_green", "Forest Green"],
+    ["crimson", "Crimson Red"]
+  ];
+
+  for (const [value, text] of skins) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = text;
+    select.appendChild(option);
   }
+
+  select.value = skins.some(([value]) => value === king.skin)
+    ? king.skin
+    : "default";
+
+  content.appendChild(select);
+
+  const save = document.createElement("button");
+  save.className = "primary";
+  save.textContent = "SAVE CHARACTER";
+  save.addEventListener("click", async () => {
+    save.disabled = true;
+    save.textContent = "SAVING...";
+
+    try {
+      const { error } = await client
+        .from("profiles")
+        .update({ skin: select.value })
+        .eq("id", king.id);
+
+      if (error) throw error;
+
+      king.skin = select.value;
+      document.getElementById("playerBadge").textContent =
+        "♟ " + king.username + " · " + king.skin.toUpperCase();
+
+      save.textContent = "SAVED ✓";
+    } catch (error) {
+      console.error(error);
+      save.textContent = "SAVE FAILED";
+      alert("Could not save your skin. Check your Supabase policies.");
+    } finally {
+      save.disabled = false;
+    }
+  });
+
+  content.appendChild(save);
+
+  openSubScreen(
+    "CHARACTER & SKINS",
+    "Your look, your kingdom.",
+    content
+  );
+});
+
+// PARTY LOBBY — real multiplayer comes next
+document.getElementById("partyButton").addEventListener("click", () => {
+  const content = document.createElement("div");
+  content.appendChild(makeInfo(
+    "Soon you will be able to create a party, share a code and invite friends."
+  ));
+
+  const status = document.createElement("div");
+  status.className = "player-badge";
+  status.textContent = "PARTY SYSTEM · IN DEVELOPMENT";
+  content.appendChild(status);
+
+  openSubScreen(
+    "PARTY LOBBY",
+    "No king survives alone.",
+    content
+  );
+});
+
+// BACK TO MAIN MENU
+document.getElementById("backButton").addEventListener("click", () => {
+  document.getElementById("subScreen").style.display = "none";
+  document.getElementById("gameMenu").style.display = "block";
+});
 
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
