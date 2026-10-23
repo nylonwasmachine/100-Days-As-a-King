@@ -1,1 +1,367 @@
 
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survive 100 Days as a King</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --gold: #e7bd68;
+  --bg: #090b0b;
+  --panel: rgba(19, 22, 20, .96);
+  --muted: #a6aaa1;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% 35%, #283126 0%, #101510 42%, #070909 100%);
+  color: #f4f0e7;
+  font-family: Inter, sans-serif;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .18;
+  background-image: url("https://www.transparenttextures.com/patterns/black-scales.png");
+}
+main {
+  position: relative;
+  width: min(100%, 450px);
+  padding: 36px;
+  background: var(--panel);
+  border: 1px solid #655333;
+  box-shadow: 0 24px 100px #000b;
+  border-radius: 12px;
+}
+.crown { text-align: center; font-size: 40px; }
+h1 {
+  font: 800 clamp(24px, 5vw, 34px)/1.25 Cinzel, serif;
+  text-align: center;
+  color: var(--gold);
+  margin: 12px 0 8px;
+  letter-spacing: 1px;
+}
+.subtitle {
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 27px;
+}
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #8e713e, transparent);
+  margin: 22px 0;
+}
+.tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+.tabs button {
+  flex: 1;
+  padding: 12px 6px;
+  color: #aaa99f;
+  background: #111411;
+  border: 1px solid #34382e;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.tabs button.active {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: #302719;
+}
+label {
+  display: block;
+  color: #ded9cb;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 16px 0 8px;
+}
+input {
+  display: block;
+  width: 100%;
+  padding: 13px 14px;
+  color: white;
+  background: #0b0d0c;
+  border: 1px solid #383c34;
+  border-radius: 5px;
+  outline: none;
+  font-size: 14px;
+}
+input:focus { border-color: var(--gold); }
+.primary {
+  width: 100%;
+  padding: 15px;
+  margin-top: 22px;
+  border: 1px solid #f0d18c;
+  border-radius: 5px;
+  background: linear-gradient(110deg, #c49a4d, #f1d28d, #c49a4d);
+  color: #17130b;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.primary:hover { filter: brightness(1.1); }
+button:disabled { opacity: .55; cursor: wait; }
+.message {
+  display: none;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #46533d;
+  border-radius: 5px;
+  color: #d6e6c9;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.message.error {
+  display: block;
+  color: #ffb9a9;
+  border-color: #77483e;
+  background: #291614;
+}
+.message.success {
+  display: block;
+  background: #172318;
+}
+.small {
+  text-align: center;
+  font-size: 11px;
+  color: #777c72;
+  line-height: 1.7;
+}
+#gameMenu { display: none; text-align: center; }
+#gameMenu h2 {
+  font: 700 25px Cinzel, serif;
+  color: var(--gold);
+}
+.menu-button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin: 12px 0;
+  background: #181d17;
+  border: 1px solid #5c4b2c;
+  border-radius: 5px;
+  color: #eee2c7;
+  cursor: pointer;
+  font-weight: 700;
+}
+.menu-button:disabled { opacity: .6; }
+@media(max-width:480px) {
+  main { padding: 25px 20px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <section id="authScreen">
+    <div class="crown">♛</div>
+    <h1>SURVIVE 100<br>DAYS AS A KING</h1>
+    <p class="subtitle">YOUR KINGDOM AWAITS<br>Survive. Build. Conquer.</p>
+    <div class="divider"></div>
+
+    <div class="tabs">
+      <button type="button" id="loginTab" class="active">LOGIN</button>
+      <button type="button" id="signupTab">CREATE ACCOUNT</button>
+    </div>
+
+    <form id="authForm">
+      <div id="usernameField" hidden>
+        <label for="username">KINGDOM NAME / USERNAME</label>
+        <input id="username" type="text" minlength="3" maxlength="20"
+          autocomplete="nickname" placeholder="Choose your name">
+      </div>
+
+      <label for="email">EMAIL ADDRESS</label>
+      <input id="email" type="email" autocomplete="email"
+        placeholder="kingdom@example.com" required>
+
+      <label for="password">PASSWORD</label>
+      <input id="password" type="password" minlength="8"
+        autocomplete="current-password" placeholder="At least 8 characters"
+        required>
+
+      <button class="primary" id="submitButton" type="submit">
+        ENTER THE KINGDOM
+      </button>
+    </form>
+
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+    <div class="divider"></div>
+    <p class="small">A NEW KINGDOM RISES.<br>Choose your destiny.</p>
+  </section>
+
+  <section id="gameMenu">
+    <div class="crown">♛</div>
+    <h2>WELCOME, KING</h2>
+    <p class="subtitle" id="welcomeText">Your kingdom awaits.</p>
+    <div class="divider"></div>
+    <button class="menu-button" disabled>⚔ PLAY — COMING SOON</button>
+    <button class="menu-button" disabled>♟ CHARACTER & SKINS — COMING SOON</button>
+    <button class="menu-button" disabled>🏰 PARTY LOBBY — COMING SOON</button>
+    <button class="menu-button" id="logoutButton">LOG OUT</button>
+    <p class="small">DAY 1 / 100 · YOUR STORY STARTS HERE</p>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "VUL_HIER_JE_PROJECT_URL_IN";
+const SUPABASE_KEY = "VUL_HIER_JE_PUBLISHABLE_KEY_IN";
+
+// Stop safely until your real Supabase settings have been entered.
+const configured =
+  SUPABASE_URL.startsWith("https://") &&
+  !SUPABASE_URL.includes("VUL_HIER") &&
+  SUPABASE_KEY.length > 20 &&
+  !SUPABASE_KEY.includes("VUL_HIER");
+
+let client = null;
+if (configured && window.supabase) {
+  client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+const form = document.getElementById("authForm");
+const loginTab = document.getElementById("loginTab");
+const signupTab = document.getElementById("signupTab");
+const usernameField = document.getElementById("usernameField");
+const submitButton = document.getElementById("submitButton");
+const message = document.getElementById("message");
+let mode = "login";
+
+function showMessage(text, type = "success") {
+  message.textContent = text;
+  message.className = "message " + type;
+}
+
+function setMode(nextMode) {
+  mode = nextMode;
+  const signup = mode === "signup";
+  loginTab.classList.toggle("active", !signup);
+  signupTab.classList.toggle("active", signup);
+  usernameField.hidden = !signup;
+  document.getElementById("password").autocomplete =
+    signup ? "new-password" : "current-password";
+  submitButton.textContent = signup
+    ? "CREATE YOUR KINGDOM"
+    : "ENTER THE KINGDOM";
+  message.className = "message";
+  message.textContent = "";
+}
+
+loginTab.addEventListener("click", () => setMode("login"));
+signupTab.addEventListener("click", () => setMode("signup"));
+
+function showGame(user) {
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("gameMenu").style.display = "block";
+  const name = user.user_metadata?.username ||
+    user.email?.split("@")[0] || "King";
+  document.getElementById("welcomeText").textContent =
+    "Welcome, " + name + ". Your kingdom awaits.";
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!client) {
+    showMessage(
+      "Supabase is not configured yet. Add your Project URL and publishable key in the code first.",
+      "error"
+    );
+    return;
+  }
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+
+  if (mode === "signup" && !/^[a-zA-Z0-9_-]{3,20}$/.test(username)) {
+    showMessage(
+      "Choose a username of 3–20 characters using letters, numbers, _ or -.",
+      "error"
+    );
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "PLEASE WAIT...";
+  message.className = "message";
+
+  try {
+    if (mode === "signup") {
+      const { data, error } = await client.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username },
+          emailRedirectTo: window.location.href.split("#")[0]
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        showGame(data.user);
+      } else {
+        showMessage(
+          "Account created! Check your email and click the confirmation link before logging in."
+        );
+        setMode("login");
+      }
+    } else {
+      const { data, error } = await client.auth.signInWithPassword({
+        email, password
+      });
+
+      if (error) throw error;
+      showGame(data.user);
+    }
+  } catch (error) {
+    showMessage(error.message || "Something went wrong. Try again.", "error");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = mode === "signup"
+      ? "CREATE YOUR KINGDOM"
+      : "ENTER THE KINGDOM";
+  }
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  if (!client) return;
+  const button = document.getElementById("logoutButton");
+  button.disabled = true;
+  try {
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+    document.getElementById("gameMenu").style.display = "none";
+    document.getElementById("authScreen").style.display = "block";
+    setMode("login");
+    form.reset();
+  } catch (error) {
+    alert(error.message || "Could not log out.");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+async function restoreSession() {
+  if (!client) return;
+  const { data, error } = await client.auth.getSession();
+  if (!error && data.session) showGame(data.session.user);
+}
+
+restoreSession();
+</script>
+</body>
+</html>
