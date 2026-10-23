@@ -262,14 +262,38 @@ function setMode(nextMode) {
 loginTab.addEventListener("click", () => setMode("login"));
 signupTab.addEventListener("click", () => setMode("signup"));
 
-function showGame(user) {
+
+async function showGame(user) {
   document.getElementById("authScreen").style.display = "none";
   document.getElementById("gameMenu").style.display = "block";
-  const name = user.user_metadata?.username ||
-    user.email?.split("@")[0] || "King";
-  document.getElementById("welcomeText").textContent =
-    "Welcome, " + name + ". Your kingdom awaits.";
+
+  const welcome = document.getElementById("welcomeText");
+  welcome.textContent = "Loading your kingdom...";
+
+  const fallbackName =
+    user.user_metadata?.username ||
+    user.email?.split("@")[0] ||
+    "King";
+
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .select("username, skin")
+      .eq("id", user.id)
+      .single();
+
+    if (error) throw error;
+
+    welcome.textContent =
+      "Welcome, " + data.username +
+      ". Your kingdom awaits. Skin: " + data.skin;
+  } catch (error) {
+    console.error("Could not load player profile:", error);
+    welcome.textContent =
+      "Welcome, " + fallbackName + ". Your kingdom awaits.";
+  }
 }
+
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
