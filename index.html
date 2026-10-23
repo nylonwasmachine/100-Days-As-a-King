@@ -632,22 +632,6 @@ form.addEventListener("submit", async (event) => {
       });
 
       if (error) throw error;
-
-      if (data.session && data.user) {
-        await showGame(data.user);
-      } else {
-        showMessage(
-          "Account created! Check your email and click the confirmation link before logging in."
-        );
-        setMode("login");
-      }
-    } else {
-      const { data, error } = await client.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
       await showGame(data.user);
     }
   } catch (error) {
@@ -675,19 +659,6 @@ form.addEventListener("submit", async (event) => {
       const { data, error } = await client.auth.signInWithPassword({
         email, password
       });
-
-      if (error) throw error;
-      showGame(data.user);
-    }
-  } catch (error) {
-    showMessage(error.message || "Something went wrong. Try again.", "error");
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = mode === "signup"
-      ? "CREATE YOUR KINGDOM"
-      : "ENTER THE KINGDOM";
-  }
-});
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
   if (!client) return;
