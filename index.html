@@ -365,18 +365,13 @@ button:disabled { opacity: .55; cursor: wait; }
 </main>
 
 <script>
+
 const SUPABASE_URL = "https://akkpddhexogrtafgwpsb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ETN4qXfCXymLEpvJbKKztQ_1U_fHvYc";
 
-// Stop safely until your real Supabase settings have been entered.
-const configured =
-  SUPABASE_URL.startsWith("https://") &&
-  !SUPABASE_URL.includes("VUL_HIER") &&
-  SUPABASE_KEY.length > 20 &&
-  !SUPABASE_KEY.includes("VUL_HIER");
-
 let client = null;
-if (configured && window.supabase) {
+
+if (window.supabase) {
   client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
@@ -386,6 +381,7 @@ const signupTab = document.getElementById("signupTab");
 const usernameField = document.getElementById("usernameField");
 const submitButton = document.getElementById("submitButton");
 const message = document.getElementById("message");
+
 let mode = "login";
 
 function showMessage(text, type = "success") {
@@ -396,22 +392,26 @@ function showMessage(text, type = "success") {
 function setMode(nextMode) {
   mode = nextMode;
   const signup = mode === "signup";
+
   loginTab.classList.toggle("active", !signup);
   signupTab.classList.toggle("active", signup);
   usernameField.hidden = !signup;
+
   document.getElementById("password").autocomplete =
     signup ? "new-password" : "current-password";
+
+  document.getElementById("username").required = signup;
+
   submitButton.textContent = signup
     ? "CREATE YOUR KINGDOM"
     : "ENTER THE KINGDOM";
+
   message.className = "message";
   message.textContent = "";
 }
 
 loginTab.addEventListener("click", () => setMode("login"));
 signupTab.addEventListener("click", () => setMode("signup"));
-
-
 
 async function showGame(user) {
   document.getElementById("authScreen").style.display = "none";
@@ -435,12 +435,13 @@ async function showGame(user) {
       .single();
 
     if (error) throw error;
-    profile = data;
+    if (data) profile = data;
   } catch (error) {
     console.error("Profile loading failed:", error);
   }
 
   badge.textContent = "♟ " + profile.username;
+
   window.currentKing = {
     id: user.id,
     username: profile.username,
@@ -469,6 +470,7 @@ function makeInfo(text) {
 // PLAY
 document.getElementById("playButton").addEventListener("click", () => {
   const content = document.createElement("div");
+
   content.appendChild(makeInfo(
     "Your journey begins here. The 3D survival world is the next stage of development."
   ));
@@ -487,10 +489,10 @@ document.getElementById("playButton").addEventListener("click", () => {
 
 // CHARACTER & SKINS
 document.getElementById("skinsButton").addEventListener("click", () => {
-  const content = document.createElement("div");
-
   const king = window.currentKing;
   if (!king) return;
+
+  const content = document.createElement("div");
 
   const name = document.createElement("p");
   name.className = "player-badge";
@@ -535,6 +537,7 @@ document.getElementById("skinsButton").addEventListener("click", () => {
   const save = document.createElement("button");
   save.className = "primary";
   save.textContent = "SAVE CHARACTER";
+
   save.addEventListener("click", async () => {
     save.disabled = true;
     save.textContent = "SAVING...";
@@ -570,9 +573,10 @@ document.getElementById("skinsButton").addEventListener("click", () => {
   );
 });
 
-// PARTY LOBBY — real multiplayer comes next
+// PARTY LOBBY
 document.getElementById("partyButton").addEventListener("click", () => {
   const content = document.createElement("div");
+
   content.appendChild(makeInfo(
     "Soon you will be able to create a party, share a code and invite friends."
   ));
@@ -595,12 +599,12 @@ document.getElementById("backButton").addEventListener("click", () => {
   document.getElementById("gameMenu").style.display = "block";
 });
 
- 
+// LOGIN AND ACCOUNT CREATION
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!client) {
-    showMessage("Supabase is niet correct ingesteld.", "error");
+    showMessage("Supabase kon niet worden geladen. Vernieuw de pagina.", "error");
     return;
   }
 
@@ -632,6 +636,22 @@ form.addEventListener("submit", async (event) => {
       });
 
       if (error) throw error;
+
+      if (data.session && data.user) {
+        await showGame(data.user);
+      } else {
+        showMessage(
+          "Account created! Check your email and click the confirmation link before logging in."
+        );
+        setMode("login");
+      }
+    } else {
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
       await showGame(data.user);
     }
   } catch (error) {
@@ -645,30 +665,21 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-      if (error) throw error;
-
-      if (data.session && data.user) {
-        showGame(data.user);
-      } else {
-        showMessage(
-          "Account created! Check your email and click the confirmation link before logging in."
-        );
-        setMode("login");
-      }
-    } else {
-      const { data, error } = await client.auth.signInWithPassword({
-        email, password
-      });
-
+// LOG OUT
 document.getElementById("logoutButton").addEventListener("click", async () => {
   if (!client) return;
+
   const button = document.getElementById("logoutButton");
   button.disabled = true;
+
   try {
     const { error } = await client.auth.signOut();
     if (error) throw error;
+
     document.getElementById("gameMenu").style.display = "none";
+    document.getElementById("subScreen").style.display = "none";
     document.getElementById("authScreen").style.display = "block";
+
     setMode("login");
     form.reset();
   } catch (error) {
@@ -678,13 +689,24 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
   }
 });
 
+// RESTORE EXISTING LOGIN SESSION
 async function restoreSession() {
   if (!client) return;
+
   const { data, error } = await client.auth.getSession();
-  if (!error && data.session) showGame(data.session.user);
+
+  if (error) {
+    console.error("Session restore failed:", error);
+    return;
+  }
+
+  if (data.session) {
+    await showGame(data.session.user);
+  }
 }
 
 restoreSession();
+
 </script>
 </body>
 </html>
